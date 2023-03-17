@@ -7,3 +7,7 @@ module.exports = {
     text_odd,
     text_even,
 }
+
+// ^ 같은 뜻
+// exports.text_odd = text_odd;
+// exports.text_even = text_even;
