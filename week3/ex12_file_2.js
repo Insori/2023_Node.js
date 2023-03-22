@@ -9,7 +9,7 @@ console.log(data?.toString());
 readData = data?.toString();
 
 let data2 = fs.writeFileSync('./writeText.txt', ("읽어온 데이터2 : "+readData));
-console.log("data2 : "+data2);
+console.log("data2 : "+data2);  //undefined
 
 let data3 = fs.readFileSync("./writeText.txt");
 console.log(data3?.toString());
