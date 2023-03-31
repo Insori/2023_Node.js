@@ -31,6 +31,14 @@ const server = http.createServer(async (req, res) => {
         console.log("log", fileListText);
         fileListText += '</ul>';
 
+        const searchParms = new URL(req.url, "http://localhost:8089").searchParams;
+        console.log("searchParms", searchParms);
+        
+        const param_date = searchParms.get("date") || "null";
+
+        const fileName = path.join(__dirname, `./textFile/menu_${param_date}.txt`);
+        let fileData = await fs.readFile(fileName);
+
         const template = `
             <!DOCTYPE html>
             <html lang="en">
@@ -41,6 +49,8 @@ const server = http.createServer(async (req, res) => {
                 <body>
                     <h1><a href="/">급식 메뉴</a></h1>    
                     ${fileListText}
+                    <br>
+                    ${fileData}
                 </body>    
             </html>
         `
