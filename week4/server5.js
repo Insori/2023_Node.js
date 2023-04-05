@@ -38,6 +38,8 @@ const server = http.createServer(async (req, res) => {
 
         const fileName = path.join(__dirname, `./textFile/menu_${param_date}.txt`);
         let fileData = await fs.readFile(fileName);
+        let fileDataString = fileData.toString().replace(/\r/g, '<br>');
+        console.log("텍스트 : ",fileDataString);
 
         const template = `
             <!DOCTYPE html>
@@ -50,7 +52,7 @@ const server = http.createServer(async (req, res) => {
                     <h1><a href="/">급식 메뉴</a></h1>    
                     ${fileListText}
                     <br>
-                    ${fileData}
+                    ${fileDataString}
                 </body>    
             </html>
         `
