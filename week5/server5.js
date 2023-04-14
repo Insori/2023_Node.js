@@ -32,14 +32,14 @@ const server = http.createServer(async (req, res) => {
         console.log("log", fileListText);
         fileListText += '</ul>';
 
-        const searchParms = new URL(req.url, "http://localhost:8089").searchParams;
+        const searchParms = new URL(req.url, "http://localhost:5221").searchParams;
         console.log("searchParms", searchParms);
         
         const param_date = searchParms.get("date") || "null";
 
         const fileName = path.join(__dirname, `./textFile/menu_${param_date}.txt`);
         let fileData = await fs.readFile(fileName);
-        let fileDataString = fileData.toString().replace(/\r/g, '<br>');
+        let fileDataString = fileData.toString().replace(/\r/g, '<br/>');
         console.log("텍스트 : ",fileDataString);
 
         //crud
@@ -54,7 +54,8 @@ const server = http.createServer(async (req, res) => {
             </form>`;
         } else if(pathname == '/update') {
             subContent = `<form action="update_process" method="post">
-            <p><input type="text" name="title" placeholder="title" value=${param_date}></p>
+            <input type="hidden" name="id" value="${param_date}"/>
+            <p><input type="text" name="title" placeholder="title" value="${param_date}"></p>
             <p><textarea name="description" placeholder="description">${fileDataString}</textarea></p>
             <p><input type="submit"/></p>
         </form>`;
@@ -71,6 +72,8 @@ const server = http.createServer(async (req, res) => {
                     <h1><a href="/">급식 메뉴</a></h1>    
                     ${fileListText}
                     <br>
+                    <h3>${param_date}</h3>
+
                     ${fileDataString}
                     <br>
                     <a href="create">create </a><a href="/update?date=${param_date}">update</a>
@@ -95,7 +98,25 @@ const server = http.createServer(async (req, res) => {
                 res.writeHead(302, {Location: `/?date=${encodeURIComponent(title)}`});
                 res.end();
             });
-        } else {
+        } else if(pathname == '/update_process') {
+            let body = '';
+            req.on('data', function(data) {
+                body += body + data;
+            });
+            req.on('end', async function() {
+                const post = qs.parse(body);
+                const id = post.id;
+                const title = post.title;
+                const description = post.description;
+                console.log("post",post);
+                //await fs.rename(`textFile/menu_${id}.txt`, `textFile/menu_${title}.txt`);
+                await fs.rename(path.join(__dirname, `textFile/menu_${id}.txt`)
+                , path.join(__dirname, `textFile/menu_${title}.txt`));
+                await fs.writeFile(`textFile/menu_${title}.txt`, description, 'utf-8');
+                res.writeHead(302, {Location:`/?date=${encodeURIComponent(title)}`});
+                res.end();
+            });
+        }else {
             res.writeHead(200, {'Content-Type' : 'text/html; charset=utf-8'});
             res.end(template);
         }
