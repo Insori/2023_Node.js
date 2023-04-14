@@ -76,7 +76,12 @@ const server = http.createServer(async (req, res) => {
 
                     ${fileDataString}
                     <br>
-                    <a href="create">create </a><a href="/update?date=${param_date}">update</a>
+                    <input type="button" value="create" onclick='location.href="/create"'>
+                    <input type="button" value="update" onclick='location.href="/update?date=${param_date}"'>
+                    <form action="delete_process" method="post">
+                        <input type="hidden" name="id" value="${param_date}">
+                        <input type="submit" value="delete">
+                    </form>
                     ${subContent}
                 </body>    
             </html>
@@ -114,6 +119,19 @@ const server = http.createServer(async (req, res) => {
                 , path.join(__dirname, `textFile/menu_${title}.txt`));
                 await fs.writeFile(`textFile/menu_${title}.txt`, description, 'utf-8');
                 res.writeHead(302, {Location:`/?date=${encodeURIComponent(title)}`});
+                res.end();
+            });
+        }else if(pathname == '/delete_process'){
+            let body='';
+            req.on('data', function(data) {
+                body += body + data;
+            });
+            req.on('end', async function() {
+                const post = qs.parse(body);
+                const id = post.id;
+                console.log("KK", id);
+                await fs.unlink(path.join(__dirname, `textFile/menu_${id}.txt`));
+                res.writeHead(302, {Location:'/'});
                 res.end();
             });
         }else {
